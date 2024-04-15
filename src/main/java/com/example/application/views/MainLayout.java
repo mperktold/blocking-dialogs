@@ -1,6 +1,6 @@
 package com.example.application.views;
 
-import com.example.application.views.condition.ConditionView;
+import com.example.application.views.condition.AwaitLockView;
 import com.example.application.views.deadlock.DeadlockView;
 import com.example.application.views.nolock.NoLockView;
 import com.example.application.views.releaselock.ReleaseLockView;
@@ -50,21 +50,19 @@ public class MainLayout extends AppLayout {
         addToDrawer(header, scroller, createFooter());
     }
 
-    private SideNav createNavigation() {
+    private static SideNav createNavigation() {
         SideNav nav = new SideNav();
 
         nav.addItem(new SideNavItem("Deadlock", DeadlockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
         nav.addItem(new SideNavItem("No Lock", NoLockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
         nav.addItem(new SideNavItem("Release Lock", ReleaseLockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
-        nav.addItem(new SideNavItem("Condition", ConditionView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
+        nav.addItem(new SideNavItem("Await Lock", AwaitLockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
 
         return nav;
     }
 
-    private Footer createFooter() {
-        Footer layout = new Footer();
-
-        return layout;
+    private static Footer createFooter() {
+		return new Footer();
     }
 
     @Override

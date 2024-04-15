@@ -1,4 +1,4 @@
-package com.example.application.views.releaselock;
+package com.example.application.views.condition;
 
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.DetachEvent;
@@ -11,30 +11,28 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 
-@PageTitle("Release Lock")
-@Route(value = "release-lock", layout = MainLayout.class)
-public class ReleaseLockView extends HorizontalLayout {
+@PageTitle("Await Lock")
+@Route(value = "await-lock", layout = MainLayout.class)
+public class AwaitLockView extends HorizontalLayout {
 
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
-    public ReleaseLockView() {
+    public AwaitLockView() {
 		var sayHello = new Button("Say hello", e -> {
             UI ui = UI.getCurrent();
             executor.execute(() -> ui.accessSynchronously(() -> {
-                CompletableFuture<String> nameFuture = askNameAsync();
-                String name = blockingWait(ui, nameFuture);
+                String name = askName(ui);
                 Notification.show("Hi, " + name);
             }));
         });
-		setMargin(true);
+        setMargin(true);
         add(sayHello);
     }
 
@@ -44,49 +42,25 @@ public class ReleaseLockView extends HorizontalLayout {
         executor.shutdown();
     }
 
-    /**
-     * Asks the user's name and returns a CompletableFuture which is completed with the user's
-     * input when clicking OK.
-     */
-    private static CompletableFuture<String> askNameAsync() {
-		var result = new CompletableFuture<String>();
+    private static String askName(UI ui) {
+        Condition condition = ui.getSession().getLockInstance().newCondition();
+        var result = new CompletableFuture<String>();
 		var dialog = new Dialog();
 		var nameField = new TextField("Name");
 		var okButton = new Button("OK", e -> {
             result.complete(nameField.getValue());
+            condition.signal();
             dialog.close();
         });
         dialog.add(new H1("What's your name?"), nameField, okButton);
         dialog.addDialogCloseActionListener(e -> {
             result.completeExceptionally(new CancellationException());
+            condition.signal();
             dialog.close();
         });
         dialog.open();
-        return result;
-    }
-
-    /**
-     * Asks and waits for the user's name. Assumes to be running an EventListener thread,
-     * and that the current VaadinSession is locked.
-     */
-    private static <T> T blockingWait(UI ui, CompletableFuture<T> future) {
-        // Temporarily unlock Session while waiting for user input,
-        // so we can immediately show dialog to the user and be ready to process
-        // the answer.
-        VaadinSession session = ui.getSession();
-        var lock = (ReentrantLock)session.getLockInstance();
-        int holdCount = lock.getHoldCount();
-        for (int i = 0; i < holdCount; i++) {
-            session.unlock();
-        }
-        try {
-            return future.join();
-        }
-        finally {
-            // Lock again to restore the previous state.
-            for (int i = 0; i < holdCount; i++) {
-                session.lock();
-            }
-        }
+        ui.push();
+        condition.awaitUninterruptibly();
+        return result.join();   // already completed here
     }
 }
