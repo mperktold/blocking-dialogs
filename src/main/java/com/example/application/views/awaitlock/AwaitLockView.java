@@ -1,4 +1,4 @@
-package com.example.application.views.condition;
+package com.example.application.views.awaitlock;
 
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.DetachEvent;

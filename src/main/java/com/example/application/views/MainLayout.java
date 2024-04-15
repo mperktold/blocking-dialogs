@@ -1,6 +1,6 @@
 package com.example.application.views;
 
-import com.example.application.views.condition.AwaitLockView;
+import com.example.application.views.awaitlock.AwaitLockView;
 import com.example.application.views.deadlock.DeadlockView;
 import com.example.application.views.nolock.NoLockView;
 import com.example.application.views.releaselock.ReleaseLockView;
