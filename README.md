@@ -1,7 +1,7 @@
 # Blocking Dialogs
 
-This project can be used as a starting point to create your own Vaadin application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
+This project shows how blocking dialogs can be realized in Vaadin with Java 17+.
+It is inspired by [mvysny/vaadin-loom](https://github.com/mvysny/vaadin-loom), which does the same thing but targets Java 21 and relies on virtual threads.
 
 ## Running the application
 
