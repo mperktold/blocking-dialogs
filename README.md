@@ -12,7 +12,7 @@ However, when you have a Swing application that makes heavy use of blocking dial
 it can be a lot of work to make all these dialogs async, since you also need to make the callers async, and the callers of those, and so on
 (see [What Color is Your Function?](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/)).
 
-Therefore, this project shows why this is difficult and how some potential solutions could look like.
+So if you need blocking dialogs in Vaadin, this project shows how some potential solutions could look like.
 
 ## The Application
 
@@ -57,7 +57,7 @@ Well, not if you do it like this:
 ```java
 private final Set<String> namesSeen = new HashSet<>();
 
-    // in listener
+    // inside listener
     executor.execute(() -> {
         CompletableFuture<String> nameFuture = askNameAsync(ui);
         String name = nameFuture.join();
