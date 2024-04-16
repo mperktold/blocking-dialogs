@@ -34,6 +34,8 @@ So why doesn't this work? There are three problems:
 This is the first actual solution. It relies on @Push being enabled for the application, as do the other solutions below.
 
 Here we use an ExecutorService to shift the work from the event handler to a background thread, which solves problem 1.
+For simplicity, we manage the ExecutorService in our component, but in prosuction, that would be a waste of resources.
+Instead, you should have a single application-wide ExecutorService to make the most out of it.
 In the background thread, we do not hold the lock on the VaadinSession. We must aquire it explicitely for making changes to the UI:
 
 https://github.com/mperktold/blocking-dialogs/blob/1a11d6c329516ed05224d07cd5c1642e9262cd14/src/main/java/com/example/application/views/nolock/NoLockView.java#L30-L32
