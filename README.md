@@ -134,9 +134,18 @@ We cannot use `UI.access`, because then it could be possible that our code runs 
 It's very important that our code actually runs in the background thread.
 
 Now that we have the lock, we simply show the dialog. No `UI.access` stuff needed for that.
+
 But before blocking, we need to release the lock somehow.
 For that, we obtain the lock instance, which happens to be a ReentrantLock.
-A ReentrantLock can be aquired in a nested fashion, and it provides a method that returns how often the lock is hold by the current thread.
+A ReentrantLock can be aquired in a nested fashion. We use `getHoldCount` to know how often the lock is aquired by the current thread.
+Then, we release the lock as many times as it is currently hold such that we arrive at a hold count of zero.
+When we reach zero, Vaadin will again push all changes to the client, such that the user can see the dialog.
+
+Now that we do not hold the lock anymore, we can block for the result.
+
+Once we wake up with the result, we need to immediately restore the hold count by aquiring it as often as we have released it before.
+
+If this sounds like an ugly hack, that's because it is. But it works.
 
 ### [Await Lock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/awaitlock/AwaitLockView.java)
 
