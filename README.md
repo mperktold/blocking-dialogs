@@ -126,7 +126,17 @@ If you don't have the lock, you can block, but you cannot change the UI.
 
 ### [Release Lock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/releaselock/ReleaseLockView.java)
 
-TODO
+This version aims to improve on how the approach scales for more complex scenarios.
+The idea is to hold the lock all the time in the background thread, and only releasing it while blocking.
+
+So in the background task, we immediately acquire the lock using `UI.accessSynchronously`.
+We cannot use `UI.access`, because then it could be possible that our code runs in the event handler thread.
+It's very important that our code actually runs in the background thread.
+
+Now that we have the lock, we simply show the dialog. No `UI.access` stuff needed for that.
+But before blocking, we need to release the lock somehow.
+For that, we obtain the lock instance, which happens to be a ReentrantLock.
+A ReentrantLock can be aquired in a nested fashion, and it provides a method that returns how often the lock is hold by the current thread.
 
 ### [Await Lock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/awaitlock/AwaitLockView.java)
 
