@@ -21,15 +21,13 @@ Showing a dialog that asks for your name, waiting for the result in a blocking m
 
 ### [Deadlock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/deadlock/DeadlockView.java)
 
-In this version, we just block in the event listener without thinking too much about it, which doesn't work, because it results in a deadlock.
+In this version, we just block in the event listener without thinking too much about it. That doesn't work, because it results in a deadlock.
 It is not a real solution, but it serves to highlight the problem and as a starting point for other solutions.
 
 So why doesn't this work? There are three problems:
 1. We block inside the event handler, which prevents Vaadin from sending a response back to the browser.
 2. When we block, we wait for the result of the dialog. But the dialog hasn't been sent to the browser yet at that point.
 3. We block while holding the lock on the VaadinSession. So even if the client would send a result to the server, Vaadin couldn't call the corresponding listener because it can't obtain the lock.
-
-Let's fix these.
 
 ### [No Lock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/nolock/NoLockView.java)
 
@@ -49,7 +47,8 @@ Assuming we use `PushMode.AUTOMATIC` (which is the default), this solves both re
 
 Note that for displaying the notification, we need to aquire the lock again, because we are still in the background thread.
 
-Now suppose we need react in a more complex way instead of just showing a notification.
+Now, how does this approach scale for more complex use cases?
+Suppose we need to react in a more complex way instead of just showing a notification.
 For example, let's say we need to keep track of all the names that we have greated so far. If we've already seen a name, we ask the user if we really should show another greeting.
 We might be tempted to try blocking again. After all, we are still in the background thread, so it should work, right?
 
@@ -94,7 +93,7 @@ void handleNameInComplexWay(UI ui, String name) {
 }
 ```
 
-The other (probably better) solution is to push down `ui.access` such that it only contains code that the UI.
+The other (probably better) solution is to push down `ui.access` such that it only contains code that changes the UI.
 So instead of wrapping the whole call of `handleNameInComplexWay` in `ui.access`, we would just call `handleNameInComplexWay` directly without acquiring the lock.
 The lock is only needed when showing the dialog in `askGreetSeenName`, and for showing the notification:
 
@@ -120,7 +119,7 @@ boolean askGreetSeenName(UI ui, String name) {
 ```
 
 This is the main drawback of this approach: You can either block or make changes to the UI, but never both.
-If you have the lock, you can make changes to the UI, but you cannot block.
+If you have the lock, you can change the UI, but you cannot block.
 If you don't have the lock, you can block, but you cannot change the UI.
 
 ### [Release Lock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/releaselock/ReleaseLockView.java)
