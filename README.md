@@ -149,4 +149,38 @@ If this sounds like an ugly hack, that's because it is. But it works.
 
 ### [Await Lock](https://github.com/mperktold/blocking-dialogs/blob/main/src/main/java/com/example/application/views/awaitlock/AwaitLockView.java)
 
-TODO
+Can we make the previous solution less hacky?
+To do that, we need to find a mechanism that automatically releases the lock when we block, so we don't have to do it manually.
+This is where [mvysny/vaadin-loom](https://github.com/mvysny/vaadin-loom) shines: it automatically release the lock whenever a virtual thread blocks.
+
+But there is another way. Instead of using `CompletableFuture.join`, we can create a `Condition` object from the lock, and wait for that:
+
+```java
+Condition condition = ui.getSession().getLockInstance().newCondition();
+...
+condition.awaitUninterruptibly();
+```
+
+The Condition guarantees that the associated lock is released while waiting, which is exactly what we need.
+We need to wake it up when the dialog is closed, and then the blocked thread can simply return the result.
+So no hacks needed, nice.
+
+But there is a downside to this approach.
+Suppose we want to build an API around such dialogs that prompt the user for some information or decision.
+This API should support both blocking and asynchronous handling of the result, because in new code, the non-blocking version should be preferred.
+
+With the previous approach, the dialog API could simply return a CompletableFuture and let the caller decide whether to block for the result or not (releasing the lock while blocking).
+With this approach, however, the blocking needs to be backed in into the API.
+So the API needs to implement the behavior twice, in a blocking manner with Conditions and in an non-blocking manner with CompletableFuture or some other async mechanism.
+
+### Conclusion
+
+The last two alternatives are the only viable ones among these, each having their own pros and cons:
+- [Release lock](#release-lock) is more flexible but requires ugly hacks.
+- [Await Lock](#await-lock) is cleaner but less flexible.
+
+Still, blocking in general has some more downsides that you need to be aware of.
+First, unless you are not running on virtual threads, blocking is a waste of resources.
+You should also put some safeguards in place to make sure every blocked thread wakes up eventually.
+For example, when the user closes the whole browser, the dialog will not be closed normally.
+You could use a detach listener to cancel the CompletableFuture also in this case.
