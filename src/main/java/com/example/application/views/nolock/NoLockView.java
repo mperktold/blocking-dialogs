@@ -21,14 +21,18 @@ import java.util.concurrent.Executors;
 @Route(value = "no-lock", layout = MainLayout.class)
 public class NoLockView extends HorizontalLayout {
 
+    // For simplicity only! In production, use an application-wide thread pool!
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public NoLockView() {
         var sayHello = new Button("Say hello", e -> {
             UI ui = UI.getCurrent();
+            // Must use accessSynchronously here instead of access.
+            // Otherwise the task could be executed by the event handler thread.
             executor.execute(() -> {
                 CompletableFuture<String> nameFuture = askNameAsync(ui);
                 String name = nameFuture.join();
+                // We don't hold the lock here, so we need to acquire it explicitely before making changes to the UI.
                 ui.access(() -> Notification.show("Hi, " + name));
             });
         });
@@ -59,7 +63,7 @@ public class NoLockView extends HorizontalLayout {
             result.completeExceptionally(new CancellationException());
             dialog.close();
         });
-        ui.access(dialog::open);
+        ui.access(dialog::open);    // Called from background thread without lock, so UI.access is needed
         return result;
     }
 }

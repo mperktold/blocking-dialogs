@@ -22,11 +22,14 @@ import java.util.concurrent.locks.Condition;
 @Route(value = "await-lock", layout = MainLayout.class)
 public class AwaitLockView extends HorizontalLayout {
 
+    // For simplicity only! In production, use an application-wide thread pool!
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public AwaitLockView() {
         var sayHello = new Button("Say hello", e -> {
             UI ui = UI.getCurrent();
+            // Must use accessSynchronously here instead of access.
+            // Otherwise the task could be executed by the event handler thread.
             executor.execute(() -> ui.accessSynchronously(() -> {
                 String name = askName(ui);
                 Notification.show("Hi, " + name);

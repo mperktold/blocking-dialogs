@@ -23,11 +23,14 @@ import java.util.concurrent.locks.ReentrantLock;
 @Route(value = "release-lock", layout = MainLayout.class)
 public class ReleaseLockView extends HorizontalLayout {
 
+    // For simplicity only! In production, use an application-wide thread pool!
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public ReleaseLockView() {
         var sayHello = new Button("Say hello", e -> {
             UI ui = UI.getCurrent();
+            // Must use accessSynchronously here instead of access.
+            // Otherwise the task could be executed by the event handler thread.
             executor.execute(() -> ui.accessSynchronously(() -> {
                 CompletableFuture<String> nameFuture = askNameAsync();
                 String name = blockingWait(ui, nameFuture);
