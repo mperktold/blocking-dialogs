@@ -38,9 +38,9 @@ For simplicity, we manage the ExecutorService in our component, but in prosuctio
 Instead, you should have a single application-wide ExecutorService to make the most out of it.
 In the background thread, we do not hold the lock on the VaadinSession. We must aquire it explicitely for making changes to the UI:
 
-https://github.com/mperktold/blocking-dialogs/blob/1a11d6c329516ed05224d07cd5c1642e9262cd14/src/main/java/com/example/application/views/nolock/NoLockView.java#L30-L32
+https://github.com/mperktold/blocking-dialogs/blob/e4227972f8217d4050ffdf0d6d176e60cfe387ab/src/main/java/com/example/application/views/nolock/NoLockView.java#L33-L36
 
-https://github.com/mperktold/blocking-dialogs/blob/1a11d6c329516ed05224d07cd5c1642e9262cd14/src/main/java/com/example/application/views/nolock/NoLockView.java#L62-L63
+https://github.com/mperktold/blocking-dialogs/blob/e4227972f8217d4050ffdf0d6d176e60cfe387ab/src/main/java/com/example/application/views/nolock/NoLockView.java#L66-L67
 
 Assuming we use `PushMode.AUTOMATIC` (which is the default), this solves both remaining problems:
 - With `ui.access(dialog::open)`, we obtain the lock, open the dialog, and release the lock again.
