@@ -47,10 +47,10 @@ public class NoLockView extends HorizontalLayout {
      * input when clicking OK.
      */
     private static CompletableFuture<String> askNameAsync(UI ui) {
-		var result = new CompletableFuture<String>();
-		var dialog = new Dialog();
-		var nameField = new TextField("Name");
-		var okButton = new Button("OK", e -> {
+        var result = new CompletableFuture<String>();
+        var dialog = new Dialog();
+        var nameField = new TextField("Name");
+        var okButton = new Button("OK", e -> {
             result.complete(nameField.getValue());
             dialog.close();
         });

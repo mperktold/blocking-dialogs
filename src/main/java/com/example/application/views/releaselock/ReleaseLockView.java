@@ -26,7 +26,7 @@ public class ReleaseLockView extends HorizontalLayout {
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public ReleaseLockView() {
-		var sayHello = new Button("Say hello", e -> {
+        var sayHello = new Button("Say hello", e -> {
             UI ui = UI.getCurrent();
             executor.execute(() -> ui.accessSynchronously(() -> {
                 CompletableFuture<String> nameFuture = askNameAsync();
@@ -34,7 +34,7 @@ public class ReleaseLockView extends HorizontalLayout {
                 Notification.show("Hi, " + name);
             }));
         });
-		setMargin(true);
+        setMargin(true);
         add(sayHello);
     }
 
@@ -49,10 +49,10 @@ public class ReleaseLockView extends HorizontalLayout {
      * input when clicking OK.
      */
     private static CompletableFuture<String> askNameAsync() {
-		var result = new CompletableFuture<String>();
-		var dialog = new Dialog();
-		var nameField = new TextField("Name");
-		var okButton = new Button("OK", e -> {
+        var result = new CompletableFuture<String>();
+        var dialog = new Dialog();
+        var nameField = new TextField("Name");
+        var okButton = new Button("OK", e -> {
             result.complete(nameField.getValue());
             dialog.close();
         });

@@ -25,7 +25,7 @@ public class AwaitLockView extends HorizontalLayout {
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public AwaitLockView() {
-		var sayHello = new Button("Say hello", e -> {
+        var sayHello = new Button("Say hello", e -> {
             UI ui = UI.getCurrent();
             executor.execute(() -> ui.accessSynchronously(() -> {
                 String name = askName(ui);
@@ -45,9 +45,9 @@ public class AwaitLockView extends HorizontalLayout {
     private static String askName(UI ui) {
         Condition condition = ui.getSession().getLockInstance().newCondition();
         var result = new CompletableFuture<String>();
-		var dialog = new Dialog();
-		var nameField = new TextField("Name");
-		var okButton = new Button("OK", e -> {
+        var dialog = new Dialog();
+        var nameField = new TextField("Name");
+        var okButton = new Button("OK", e -> {
             result.complete(nameField.getValue());
             condition.signal();
             dialog.close();
