@@ -4,6 +4,7 @@ import com.example.application.views.awaitlock.AwaitLockView;
 import com.example.application.views.deadlock.DeadlockView;
 import com.example.application.views.nolock.NoLockView;
 import com.example.application.views.releaselock.ReleaseLockView;
+import com.example.application.views.usecase.UseCase;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -57,6 +58,7 @@ public class MainLayout extends AppLayout {
         nav.addItem(new SideNavItem("No Lock", NoLockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
         nav.addItem(new SideNavItem("Release Lock", ReleaseLockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
         nav.addItem(new SideNavItem("Await Lock", AwaitLockView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
+        nav.addItem(new SideNavItem("Use Case", UseCase.class, LineAwesomeIcon.GLOBE_SOLID.create()));
 
         return nav;
     }
